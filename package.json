@@ -1,0 +1,22 @@
+{
+  "name": "curso-asincronismo-js-platzi",
+  "version": "1.0.0",
+  "description": "- Clase 1. [Algunas definiciones](#Algunas-definiciones)\r - Clase 2. [Introducción al asincronismo](#Introducción-al-asincronismo)\r - Clase 3. [Presentación del reto consumir APIs](#Presentación-del-reto-consumir-APIs)\r - Clase 4. [Definición Estructura Callback](#Definición-Estructura-Callback)\r - Clase 5. [Peticiones a APIs usando Callbacks](#Peticiones-a-APIs-usando-Callbacks)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BraianVayletGlobant/curso-asincronismo-js-platzi.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BraianVayletGlobant/curso-asincronismo-js-platzi/issues"
+  },
+  "homepage": "https://github.com/BraianVayletGlobant/curso-asincronismo-js-platzi#readme",
+  "dependencies": {
+    "xmlhttprequest": "^1.8.0"
+  }
+}
