@@ -7,6 +7,10 @@
 - Clase 5. [Peticiones a APIs usando Callbacks](#Peticiones-a-APIs-usando-Callbacks)
 - Clase 6. [Múltiples Peticiones a un API con Callbacks](#Múltiples-Peticiones-a-un-API-con-Callbacks)
 - Clase 7. [Implementando Promesas](#Implementando-Promesas)
+- Clase 8. [Resolver problema con Promesas](#Resolver-problema-con-Promesas)
+- Clase 9. [Conociendo Async/await](#Conociendo-Async/await)
+- Clase 10. [Resolver problema con Async/Await](#Resolver-problema-con-Async/Await)
+- Clase 11. [Callbacks Vs Promesas Vs Async/Await](#Callbacks-Vs-Promesas-Vs-Async/Await)
 
 # Algunas definiciones.
 
@@ -323,3 +327,202 @@ Promise.all([somethingWillHappen(), somethingWillHappen2()])
   .catch(console.log);
 // 👉return ['✅','⏳✅']
 ```
+
+# Resolver problema con Promesas
+
+## Ejemplo Clase:
+
+### ./src/utils/fetchData.js
+
+```javascript
+// modulo para hacer las peticiones
+let XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+
+// funcion principal
+const fetchData = (url_api) => {
+  return new Promise((resolve, reject) => {
+    // instanciamos la conexion
+    const xhttp = new XMLHttpRequest();
+    // abrir una conexion con el metodo, la ruta y si es asincrono
+    xhttp.open("GET", url_api, true);
+    // validacion del llamado
+    xhttp.onreadystatechange = () => {
+      // comparamos el 4 porque eso indica que se completo la peticion
+      if (xhttp.readyState === 4) {
+        // verificamos que el status este en 200, 200 es que es correcto
+        xhttp.status === 200
+          ? // si esta en 200
+            resolve(JSON.parse(xhttp.responseText))
+          : // si no esta en 200
+            reject(new Error("Error " + url_api));
+      }
+    };
+    // por ultimo enviamos la peticion
+    xhttp.send();
+  });
+};
+
+// exportamos la funcion
+module.exports = fetchData;
+```
+
+### ./src/promise/challenge.js
+
+```javascript
+// importamos la funcion
+const fetchData = require("./../utils/fetchData");
+// declaramos la ruta de la api
+const API = "https://rickandmortyapi.com/api/character/";
+
+fetchData(API)
+  .then((data) => {
+    // imprimimos el numero de personajes
+    console.log(data.info.count);
+    // volvemos a hacer la promesa de pedir algo, en este caso el personaje 1: Rick
+    return fetchData(`${API}${data.results[0].id}`);
+  })
+  .then((data) => {
+    // esperamos la promesa anterior y vemos el nombre de rick
+    console.log(data.name);
+    // volvemos a hacer la promesa, pero esta es sobre la dimension de Rick
+    return fetchData(data.origin.url);
+  })
+  .then((data) => {
+    // vemos la dimension de rick
+    console.log(data.dimension);
+  })
+  // si hay error
+  .catch((err) => {
+    console.log(err);
+  });
+```
+
+# Conociendo Async/await
+
+Async-Await es Sugar-Syntax para .then()-.cath()
+
+## Ejemplo Clase:
+
+```javascript
+const doSomethingAsync = () => {
+  return new Promise((resolve, reject) => {
+    true
+      ? setTimeout(() => {
+          resolve("Do Something Async");
+        }, 3000)
+      : reject(new Error("Test Error"));
+  });
+};
+
+const doSomething = async () => {
+  const something = await doSomethingAsync();
+  console.log(something);
+};
+
+(async () => {
+  console.log("Before");
+  await doSomething();
+  console.log("After");
+})();
+
+const anotherFunction = async () => {
+  try {
+    const something = await doSomethingAsync();
+    console.log(something);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+(async () => {
+  console.log("Before 1");
+  await anotherFunction();
+  console.log("After 1");
+})();
+```
+
+# Resolver problema con Async/Await
+
+## Ejemplo Clase:
+
+```javascript
+// traemos nuestra funcion que llamara a la API
+const fetchData = require("../utils/fechtData");
+// el link de la API
+const API = "https://rickandmortyapi.com/api/character/";
+
+// nuestra funcion asíncrona, le devemos pasar la api
+const anotherFunction = async (url_api) => {
+  // el TryCatch, para que se maneje de manera sincrónica
+  try {
+    // esperamos que se aga la primera llamada
+    const data = await fetchData(url_api);
+
+    // esperamos que se aga la segunda llamada
+    const character = await fetchData(`${API}${data.results[0].id}`);
+
+    // esperamos que se aga la tercera llamada
+    const origin = await fetchData(character.origin.url);
+
+    // imprimimos las datos de la api
+    console.log(data.info.count);
+    console.log(character.name);
+    console.log(origin.dimension);
+  } catch (error) {
+    // si hay algun error lo mostramos
+    console.error(error);
+  }
+};
+
+console.log("before");
+// mandamos a llamar nuestra api
+anotherFunction(API);
+console.log("After");
+```
+
+# Callbacks Vs Promesas Vs Async/Await
+
+Hablemos de un punto importante que debes de tener en cuenta a la hora de elegir cuál será la
+implementación que utilizarás en tus proyectos para manejar de forma correcta el asincronismo
+en JavaScript.
+
+Teniendo en cuenta lo aprendido en este curso quiero mostrarte las ventajas y desventajas que
+tienen cada una de las formas en las que podemos manejar asincronismo.
+
+### **Callbacks**
+
+#### > Ventajas
+
+- **_Simpleza_**: Nos permite disponer de una sintaxis fácil de entender y comprender qué sucederá al ser ejecutada.
+- **_Compatibilidad_**: Los Callbacks son funciones que no necesitan convertir tu código con un polyfill para que funcionen con todos los navegadores modernos o versiones anteriores.
+
+#### > Desventajas
+
+- Entre las principales desventajas podemos encontrar que disponen de una estructura que puede llegar a ser robusta, más cuando anidamos llamadas a otras funciones, su flujo se puede volver poco intuitivo lo cual nos hará no comprender claramente su estructura.
+- Manejo de Errores, con los Callbacks no tenemos un camino claro para manejar los errores lo cual se traduce en problemas a la hora de manejar la lógica de nuestro programa.
+
+### **Promesas**
+
+#### > Ventajas
+
+- **_Flujo fluido_**: Con las promesas podemos manejar un flujo complejos, anidar llamadas y tener una sintaxis clara que nos permite entender nuestro programa o la lógica que implica su uso.
+- **_Manejo de Errores_**: Las promesas nos proporcionan un forma clara de manejar errores, una sintaxis sencilla y una forma de entender qué sucederá cuando sean ejecutadas.
+
+#### > Desventajas
+
+- **_PolyFill_**: Las promesas no son compatibles con todos los navegadores, si bien los navegadores modernos pueden interpretar sin problema alguno, navegadores como internet explorer 11 necesitan transpilar el código para que funcionen correctamente.
+
+### **Async-Await**
+
+#### > Ventajas
+
+- **_Sintaxis_**: Tienen una sintaxis muy simple y clara de leer, lo que nos permite entender de forma muy sencilla su funcionamiento.
+- **_Try/catch_**: Podemos utilizar try/catch para el manejo de errores con lo cual podemos manejar una sintaxis clara para el manejo de los errores.
+
+#### > Desventajas
+
+- **_PolyFill_**: Como las promesas, Async/Await aún no tienen toda la compatibilidad con los navegadores viejos, por lo cual necesitamos transpilar nuestro código para utilizarlos en cualquier navegador.
+
+## Conclusiones
+
+Ahora que entiendes las ventajas y desventajas de los **callbacks**, **promesas** y **async/await** puedes tomar la decisión de cuál implementar en tus proyectos, teniendo en cuenta su uso, así como las implementaciones que estés realizando. En lo particular he dejado atrás a los Callbacks para pasar mi lógica que maneje asincronismo a las promesas y en casos particulares utilizar Async/Await.
