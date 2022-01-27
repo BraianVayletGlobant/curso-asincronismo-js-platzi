@@ -1,5 +1,9 @@
 # Curso de Asincronismo con JavaScript
 
+## Mis Cursos en Platzi 👉 [Certificados](https://drive.google.com/drive/folders/1SNu_BcXoBeMUwQuw-CO2qc6QWhHWv_cL)
+
+## Clases:
+
 - Clase 1. [Algunas definiciones](#Algunas-definiciones)
 - Clase 2. [Introducción al asincronismo](#Introducción-al-asincronismo)
 - Clase 3. [Presentación del reto consumir APIs](#Presentación-del-reto-consumir-APIs)
